@@ -1,25 +1,38 @@
-import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import {removeTodo} from '../features/todo/todoSlice'
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { removeTodo, updateTodo } from "../features/todo/todoSlice";
 
 function Todos() {
-    const todos = useSelector(state => state.todos)
-    const dispatch = useDispatch()
+  const todos = useSelector((state) => state.todos);
+  const dispatch = useDispatch();
+
+  const [editId, setEditId] = useState(null);
+  const [editText, setEditText] = useState("");
 
   return (
     <>
-    <div>Todos</div>
-    <ul className="list-none">
+      <div>Todos</div>
+      <ul className="list-none">
         {todos.map((todo) => (
           <li
             className="mt-4 flex justify-between items-center bg-zinc-800 px-4 py-2 rounded"
             key={todo.id}
           >
-            <div className='text-white'>{todo.text}</div>
+            {editId === todo.id ? (
+              <input
+                className="text-white px-2 py-1 rounded"
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+              />
+            ) : (
+              <div className="text-white">{todo.text}</div>
+            )}
+
             <button
-            onClick={() => dispatch(removeTodo(todo.id))}
+              onClick={() => dispatch(removeTodo(todo.id))}
               className="text-white bg-red-500 border-0 py-1 px-4 focus:outline-none hover:bg-red-600 rounded text-md"
             >
+              {/* Trash icon */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -35,11 +48,34 @@ function Todos() {
                 />
               </svg>
             </button>
+
+            {editId === todo.id ? (
+              <button
+                className="ml-2 text-sm border border-black/10 px-3 py-1 rounded bg-green-500 text-white hover:bg-green-600"
+                onClick={() => {
+                  dispatch(updateTodo({ id: editId, text: editText }));
+                  setEditId(null);
+                  setEditText("");
+                }}
+              >
+                Save
+              </button>
+            ) : (
+              <button
+                className="inline-flex w-8 h-8 rounded-lg text-white text-sm border border-black/10 justify-center items-center bg-gray-50 hover:bg-gray-400 shrink-0 disabled:opacity-50"
+                onClick={() => {
+                  setEditId(todo.id);
+                  setEditText(todo.text);
+                }}
+              >
+                Edit
+              </button>
+            )}
           </li>
         ))}
       </ul>
     </>
-  )
+  );
 }
 
-export default Todos
+export default Todos;
